@@ -8,7 +8,10 @@ RUN mvn dependency:go-offline -B
 
 # Copy source code and build
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests \
+    -Dmaven.wagon.http.pool=false \
+    -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 \
+    -Dmaven.wagon.http.retryHandler.count=3
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine
