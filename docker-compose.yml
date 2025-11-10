@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: polysnake-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-polysnake}
+      POSTGRES_USER: ${DB_USER:-polysnake}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-polysnake}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - polysnake-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-polysnake}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Spring Boot
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: polysnake-backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-polysnake}
+      DB_USER: ${DB_USER:-polysnake}
+      DB_PASSWORD: ${DB_PASSWORD:-polysnake}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,https://polysnake.meowsik.com}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - polysnake-network
+    restart: unless-stopped
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: polysnake-frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    environment:
+      REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:8080}
+    depends_on:
+      - backend
+    networks:
+      - polysnake-network
+    restart: unless-stopped
+
+networks:
+  polysnake-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

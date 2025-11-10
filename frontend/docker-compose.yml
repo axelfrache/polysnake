@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  snake-game:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: snake-game
+    ports:
+      - "3001:80"
+    restart: unless-stopped
+    networks:
+      - snake-network
+
+networks:
+  snake-network:
+    driver: bridge
