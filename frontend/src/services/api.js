@@ -1,5 +1,19 @@
-// Utiliser une URL relative si on est sur le même domaine, sinon utiliser l'URL configurée
-const API_URL = process.env.REACT_APP_API_URL || window.location.origin.replace(':3001', ':8081');
+// Déterminer l'URL de l'API
+const getApiUrl = () => {
+  // Si REACT_APP_API_URL est défini, l'utiliser
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  
+  // Sinon, construire l'URL basée sur le hostname actuel
+  const protocol = window.location.protocol; // http: ou https:
+  const hostname = window.location.hostname; // polysnake.meowsik.com ou localhost
+  
+  // Utiliser le port 8081 pour le backend
+  return `${protocol}//${hostname}:8081`;
+};
+
+const API_URL = getApiUrl();
 
 export const scoreService = {
   async saveScore(username, score) {

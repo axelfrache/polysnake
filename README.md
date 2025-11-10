@@ -172,9 +172,36 @@ CORS_ALLOWED_ORIGINS=http://localhost:3001,https://polysnake.meowsik.com
 
 ### Déploiement sur VM distante
 
-#### Option 1 : Frontend et Backend sur le même serveur (ports différents)
+#### Option 1 : Frontend et Backend sur le même serveur avec Reverse Proxy (Recommandé)
 
-Le frontend détecte automatiquement l'URL du serveur. Pas besoin de configurer `REACT_APP_API_URL`.
+Utilisez nginx pour router `/api/` vers le backend et `/` vers le frontend.
+
+1. **Copier la configuration nginx** :
+```bash
+sudo cp nginx.conf /etc/nginx/sites-available/polysnake
+sudo ln -s /etc/nginx/sites-available/polysnake /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+2. **Créer le fichier .env** :
+```bash
+cp .env.example .env
+# Éditer .env et définir REACT_APP_API_URL=https://polysnake.meowsik.com
+```
+
+3. **Lancer avec Docker Compose** :
+```bash
+docker-compose up -d --build
+```
+
+**Accès :**
+- Frontend : `https://polysnake.meowsik.com/`
+- Backend API : `https://polysnake.meowsik.com/api/`
+
+#### Option 2 : Frontend et Backend sur le même serveur (ports différents)
+
+Si vous n'utilisez pas de reverse proxy, le frontend détecte automatiquement l'URL.
 
 ```bash
 # Créer le fichier .env
@@ -187,6 +214,10 @@ docker-compose up -d --build
 **Accès :**
 - Frontend : `http://votre-serveur.com:3001`
 - Backend : `http://votre-serveur.com:8081`
+
+**⚠️ Important :** Si votre frontend est en HTTPS, vous devez soit :
+- Utiliser un reverse proxy (Option 1)
+- Ou définir `REACT_APP_API_URL=http://votre-serveur.com:8081` dans `.env` et reconstruire
 
 #### Option 2 : Frontend et Backend sur des domaines différents
 
