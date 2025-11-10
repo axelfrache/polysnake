@@ -5,6 +5,8 @@ import Menu from "./Menu";
 import Leaderboard from "./Leaderboard";
 import { scoreService } from "./services/api";
 
+// Version 1.1 - Bug fix: collision detection après manger un food
+
 const getRandomFood = (snakeDots = []) => {
   let min = 1;
   let maxX = 32; // 17 cases * 2 - 2
