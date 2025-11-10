@@ -60,8 +60,8 @@ class App extends Component {
   };
 
   componentDidUpdate() {
-    this.onSnakeOutOfBounds();
-    this.onSnakeCollapsed();
+    // La détection de collision est maintenant dans moveSnake()
+    // On vérifie juste si le serpent mange
     this.onSnakeEats();
   }
 
@@ -118,7 +118,7 @@ class App extends Component {
   };
 
   moveSnake = () => {
-    if (this.state.route !== "game") return;
+    if (this.state.route !== "game" || this.isGameOver) return;
     
     let dots = [...this.state.snakeDots];
     let head = dots[dots.length - 1];
@@ -141,6 +141,23 @@ class App extends Component {
       case "UP":
         head = [head[0], head[1] - 2];
         break;
+    }
+    
+    // Vérifier les collisions AVANT de mettre à jour le state
+    // 1. Collision avec les murs
+    if (head[0] >= 34 || head[1] >= 30 || head[0] < 0 || head[1] < 0) {
+      this.isGameOver = true;
+      this.gameOver();
+      return;
+    }
+    
+    // 2. Collision avec soi-même
+    for (let i = 0; i < dots.length; i++) {
+      if (head[0] === dots[i][0] && head[1] === dots[i][1]) {
+        this.isGameOver = true;
+        this.gameOver();
+        return;
+      }
     }
     
     dots.push(head);
@@ -219,12 +236,15 @@ class App extends Component {
       try {
         await scoreService.saveScore(this.state.username, finalScore);
         await this.loadTopScores();
+        alert(`GAME OVER, ${this.state.username}! Your score is ${finalScore}`);
       } catch (error) {
         console.error("Failed to save score:", error);
+        alert(`GAME OVER! Your score is ${finalScore}\n\nError saving score: ${error.message || 'Server error'}`);
       }
+    } else {
+      alert(`GAME OVER, ${this.state.username}! Your score is ${finalScore}`);
     }
     
-    alert(`GAME OVER, ${this.state.username}! Your score is ${finalScore}`);
     this.setState({
       ...initialState,
       username: this.state.username,

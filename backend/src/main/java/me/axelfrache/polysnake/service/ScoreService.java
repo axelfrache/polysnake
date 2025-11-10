@@ -9,6 +9,8 @@ import me.axelfrache.polysnake.repository.ScoreRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,10 +25,21 @@ public class ScoreService {
     public ScoreResponse saveScore(ScoreRequest request) {
         log.info("Saving score for user: {} with score: {}", request.getUsername(), request.getScore());
         
-        // Chercher si l'utilisateur existe déjà
+        if (request.getScore() > 10000) {
+            log.warn("Suspicious score detected for user: {} with score: {}", 
+                    request.getUsername(), request.getScore());
+            throw new IllegalArgumentException("Score is suspiciously high. Maximum allowed: 10000");
+        }
+        
         Score score = scoreRepository.findByUsername(request.getUsername())
                 .map(existingScore -> {
-                    // Si le nouveau score est meilleur, mettre à jour
+                    Duration timeSinceLastUpdate = Duration.between(existingScore.getCreatedAt(), LocalDateTime.now());
+                    if (timeSinceLastUpdate.toSeconds() < 10) {
+                        log.warn("User {} is submitting scores too quickly ({}s since last update)", 
+                                request.getUsername(), timeSinceLastUpdate.toSeconds());
+                        throw new IllegalArgumentException("Please wait at least 10 seconds between score submissions");
+                    }
+                    
                     if (request.getScore() > existingScore.getScore()) {
                         log.info("Updating score for user: {} from {} to {}", 
                                 request.getUsername(), existingScore.getScore(), request.getScore());
@@ -39,7 +52,6 @@ public class ScoreService {
                     }
                 })
                 .orElseGet(() -> {
-                    // Créer un nouveau score si l'utilisateur n'existe pas
                     log.info("Creating new score entry for user: {}", request.getUsername());
                     return Score.builder()
                             .username(request.getUsername())

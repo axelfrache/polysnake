@@ -1,5 +1,6 @@
 package me.axelfrache.polysnake.dto;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,5 +16,6 @@ public class ScoreRequest {
 
     @NotNull(message = "Score is required")
     @Min(value = 0, message = "Score must be positive")
+    @Max(value = 1000, message = "Score is suspiciously high (max: 10000)")
     private Integer score;
 }
