@@ -9,7 +9,12 @@ const getApiUrl = () => {
   const protocol = window.location.protocol; // http: ou https:
   const hostname = window.location.hostname; // polysnake.meowsik.com ou localhost
   
-  // Utiliser le port 8081 pour le backend
+  // Si on est sur le domaine de production, utiliser le sous-domaine API
+  if (hostname === 'polysnake.meowsik.com') {
+    return `${protocol}//api-polysnake.meowsik.com`;
+  }
+  
+  // Sinon, utiliser le port 8081 pour le backend local
   return `${protocol}//${hostname}:8081`;
 };
 
