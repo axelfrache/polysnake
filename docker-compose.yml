@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: ${DB_USER:-polysnake}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-polysnake}
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "${DB_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -33,9 +33,9 @@ services:
       DB_NAME: ${DB_NAME:-polysnake}
       DB_USER: ${DB_USER:-polysnake}
       DB_PASSWORD: ${DB_PASSWORD:-polysnake}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,https://polysnake.meowsik.com}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3001,https://polysnake.meowsik.com}
     ports:
-      - "${BACKEND_PORT:-8080}:8080"
+      - "${BACKEND_PORT:-8081}:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -48,11 +48,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=${REACT_APP_API_URL}
     container_name: polysnake-frontend
     ports:
-      - "${FRONTEND_PORT:-3000}:80"
-    environment:
-      REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:8080}
+      - "${FRONTEND_PORT:-3001}:80"
     depends_on:
       - backend
     networks:

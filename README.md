@@ -45,9 +45,9 @@ docker-compose logs -f
 ```
 
 **Accès :**
-- **Frontend** : http://localhost:3000
-- **Backend API** : http://localhost:8080
-- **PostgreSQL** : localhost:5432
+- **Frontend** : http://localhost:3001
+- **Backend API** : http://localhost:8081
+- **PostgreSQL** : localhost:5433
 
 ### Arrêter les services
 
@@ -71,7 +71,7 @@ docker run -d \
   -e POSTGRES_DB=polysnake \
   -e POSTGRES_USER=polysnake \
   -e POSTGRES_PASSWORD=polysnake \
-  -p 5432:5432 \
+  -p 5433:5432 \
   postgres:16-alpine
 
 # Lancer le backend
@@ -157,22 +157,40 @@ Créer un fichier `.env` à la racine :
 DB_NAME=polysnake
 DB_USER=polysnake
 DB_PASSWORD=polysnake_secure_password
-DB_PORT=5432
+DB_PORT=5433
 
 # Backend
-BACKEND_PORT=8080
+BACKEND_PORT=8081
 
 # Frontend
-FRONTEND_PORT=3000
-REACT_APP_API_URL=http://localhost:8080
+FRONTEND_PORT=3001
+REACT_APP_API_URL=http://localhost:8081
 
 # CORS
-CORS_ALLOWED_ORIGINS=http://localhost:3000,https://polysnake.meowsik.com
+CORS_ALLOWED_ORIGINS=http://localhost:3001,https://polysnake.meowsik.com
 ```
 
 ### Déploiement sur VM distante
 
-1. **Configurer les variables d'environnement** :
+#### Option 1 : Frontend et Backend sur le même serveur (ports différents)
+
+Le frontend détecte automatiquement l'URL du serveur. Pas besoin de configurer `REACT_APP_API_URL`.
+
+```bash
+# Créer le fichier .env
+cp .env.example .env
+
+# Lancer avec Docker Compose
+docker-compose up -d --build
+```
+
+**Accès :**
+- Frontend : `http://votre-serveur.com:3001`
+- Backend : `http://votre-serveur.com:8081`
+
+#### Option 2 : Frontend et Backend sur des domaines différents
+
+1. **Configurer les variables d'environnement** dans `.env` :
 ```env
 REACT_APP_API_URL=https://api.polysnake.meowsik.com
 CORS_ALLOWED_ORIGINS=https://polysnake.meowsik.com
@@ -184,8 +202,8 @@ docker-compose up -d --build
 ```
 
 3. **Configurer un reverse proxy (Nginx/Traefik)** pour :
-   - `polysnake.meowsik.com` → Frontend (port 3000)
-   - `api.polysnake.meowsik.com` → Backend (port 8080)
+   - `polysnake.meowsik.com` → Frontend (port 3001)
+   - `api.polysnake.meowsik.com` → Backend (port 8081)
 
 ## 🕹️ Contrôles du jeu
 

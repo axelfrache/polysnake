@@ -1,4 +1,5 @@
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+// Utiliser une URL relative si on est sur le même domaine, sinon utiliser l'URL configurée
+const API_URL = process.env.REACT_APP_API_URL || window.location.origin.replace(':3001', ':8081');
 
 export const scoreService = {
   async saveScore(username, score) {
