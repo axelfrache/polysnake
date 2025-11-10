@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "scores")
+@Table(name = "scores", indexes = {
+    @Index(name = "idx_username", columnList = "username", unique = true)
+})
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,7 +22,7 @@ public class Score {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, unique = true)
     private String username;
 
     @Column(nullable = false)

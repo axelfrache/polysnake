@@ -39,6 +39,7 @@ class App extends Component {
     };
     this.directionQueue = [];
     this.isGameOver = false;
+    this.hasEaten = false;
   }
 
   componentDidMount() {
@@ -115,35 +116,43 @@ class App extends Component {
   };
 
   moveSnake = () => {
+    if (this.state.route !== "game") return;
+    
     let dots = [...this.state.snakeDots];
     let head = dots[dots.length - 1];
-    if (this.state.route === "game") {
-      // Prendre la prochaine direction de la queue, ou garder la direction actuelle
-      const direction = this.directionQueue.length > 0 
-        ? this.directionQueue.shift()
-        : this.state.direction;
-      
-      switch (direction) {
-        case "RIGHT":
-          head = [head[0] + 2, head[1]];
-          break;
-        case "LEFT":
-          head = [head[0] - 2, head[1]];
-          break;
-        case "DOWN":
-          head = [head[0], head[1] + 2];
-          break;
-        case "UP":
-          head = [head[0], head[1] - 2];
-          break;
-      }
-      dots.push(head);
-      dots.shift();
-      this.setState({
-        snakeDots: dots,
-        direction: direction
-      });
+    
+    // Prendre la prochaine direction de la queue, ou garder la direction actuelle
+    const direction = this.directionQueue.length > 0 
+      ? this.directionQueue.shift()
+      : this.state.direction;
+    
+    switch (direction) {
+      case "RIGHT":
+        head = [head[0] + 2, head[1]];
+        break;
+      case "LEFT":
+        head = [head[0] - 2, head[1]];
+        break;
+      case "DOWN":
+        head = [head[0], head[1] + 2];
+        break;
+      case "UP":
+        head = [head[0], head[1] - 2];
+        break;
     }
+    
+    dots.push(head);
+    
+    // Ne retirer la queue que si on n'a pas mangé
+    if (!this.hasEaten) {
+      dots.shift();
+    }
+    this.hasEaten = false;
+    
+    this.setState({
+      snakeDots: dots,
+      direction: direction
+    });
   };
 
   onSnakeOutOfBounds() {
@@ -175,17 +184,9 @@ class App extends Component {
       this.setState({
         food: getRandomFood(this.state.snakeDots)
       });
-      this.increaseSnake();
+      this.hasEaten = true;
       this.increaseSpeed();
     }
-  }
-
-  increaseSnake() {
-    let newSnake = [...this.state.snakeDots];
-    newSnake.unshift([]);
-    this.setState({
-      snakeDots: newSnake
-    });
   }
 
   increaseSpeed() {
@@ -198,6 +199,7 @@ class App extends Component {
 
   onRouteChange = () => {
     this.isGameOver = false;
+    this.hasEaten = false;
     this.setState({
       route: "game"
     });

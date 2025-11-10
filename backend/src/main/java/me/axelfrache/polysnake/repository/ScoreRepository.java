@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ScoreRepository extends JpaRepository<Score, Long> {
@@ -15,4 +16,6 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
 
     @Query("SELECT s FROM Score s ORDER BY s.score DESC, s.createdAt ASC LIMIT 10")
     List<Score> findTopScores();
+    
+    Optional<Score> findByUsername(String username);
 }

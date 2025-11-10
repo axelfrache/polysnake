@@ -23,10 +23,29 @@ public class ScoreService {
     public ScoreResponse saveScore(ScoreRequest request) {
         log.info("Saving score for user: {} with score: {}", request.getUsername(), request.getScore());
         
-        Score score = Score.builder()
-                .username(request.getUsername())
-                .score(request.getScore())
-                .build();
+        // Chercher si l'utilisateur existe déjà
+        Score score = scoreRepository.findByUsername(request.getUsername())
+                .map(existingScore -> {
+                    // Si le nouveau score est meilleur, mettre à jour
+                    if (request.getScore() > existingScore.getScore()) {
+                        log.info("Updating score for user: {} from {} to {}", 
+                                request.getUsername(), existingScore.getScore(), request.getScore());
+                        existingScore.setScore(request.getScore());
+                        return existingScore;
+                    } else {
+                        log.info("Keeping existing score for user: {} (existing: {}, new: {})", 
+                                request.getUsername(), existingScore.getScore(), request.getScore());
+                        return existingScore;
+                    }
+                })
+                .orElseGet(() -> {
+                    // Créer un nouveau score si l'utilisateur n'existe pas
+                    log.info("Creating new score entry for user: {}", request.getUsername());
+                    return Score.builder()
+                            .username(request.getUsername())
+                            .score(request.getScore())
+                            .build();
+                });
         
         Score savedScore = scoreRepository.save(score);
         log.info("Score saved successfully with ID: {}", savedScore.getId());
