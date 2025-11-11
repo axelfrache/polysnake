@@ -440,7 +440,7 @@ class App extends Component {
               fontFamily: '"Courier New", Courier, monospace',
               letterSpacing: '8px'
             }}>
-              POLY SNAKE
+              POLYSNAKE
             </div>
             <Menu 
               onRouteChange={this.onRouteChange} 
