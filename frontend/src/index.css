@@ -72,37 +72,29 @@ html {
   }
 }
 
+/* Styles de base pour snake et food - avec effets glow */
 .snake {
   position: absolute;
   width: 30px;
   height: 30px;
-  background: linear-gradient(135deg, #00ff88, #00d9ff);
-  border: 1px solid #00ffff;
+  background: var(--color-primary, #2EFAD7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 3px;
   z-index: 2;
-  box-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
+  box-shadow: 0 0 10px var(--color-primary, rgba(46, 250, 215, 0.6)),
+              0 0 20px var(--color-primary, rgba(46, 250, 215, 0.3));
 }
 
 .food {
   position: absolute;
   width: 30px;
   height: 30px;
-  background: radial-gradient(circle, #ff00ff, #ff0080);
+  background: var(--color-accent, #FF3DAE);
+  border: 2px solid rgba(255, 255, 255, 0.4);
   border-radius: 50%;
   z-index: 1;
-  box-shadow: 0 0 15px rgba(255, 0, 255, 0.8), 0 0 30px rgba(255, 0, 255, 0.4);
-  animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.8;
-  }
+  box-shadow: 0 0 15px var(--color-accent, rgba(255, 46, 151, 0.8)),
+              0 0 30px var(--color-accent, rgba(255, 46, 151, 0.4));
 }
 
 .bomb {

@@ -1,0 +1,202 @@
+/* Fade & Scale Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Pulse & Glow */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: var(--glow-turquoise);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(46, 250, 215, 0.8), 0 0 60px rgba(46, 250, 215, 0.5);
+  }
+}
+
+@keyframes glowPulseMagenta {
+  0%, 100% {
+    box-shadow: var(--glow-magenta);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 46, 151, 0.8), 0 0 60px rgba(255, 46, 151, 0.5);
+  }
+}
+
+/* Floating Score */
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50px) scale(1.2);
+  }
+}
+
+/* Flash Effects */
+@keyframes flashGreen {
+  0%, 100% {
+    box-shadow: var(--glow-turquoise);
+  }
+  50% {
+    box-shadow: 0 0 50px rgba(46, 250, 215, 1), 0 0 100px rgba(46, 250, 215, 0.8);
+  }
+}
+
+@keyframes flashRed {
+  0%, 100% {
+    border-color: var(--neon-turquoise);
+  }
+  50% {
+    border-color: #ff2e2e;
+    box-shadow: 0 0 50px rgba(255, 46, 46, 1), 0 0 100px rgba(255, 46, 46, 0.8);
+  }
+}
+
+@keyframes flashGold {
+  0%, 100% {
+    box-shadow: var(--glow-turquoise);
+  }
+  50% {
+    box-shadow: 0 0 50px rgba(255, 215, 0, 1), 0 0 100px rgba(255, 215, 0, 0.8);
+    border-color: #ffd700;
+  }
+}
+
+/* Button Hover */
+@keyframes buttonHover {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Shimmer Effect */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* Utility Classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.fade-in-scale {
+  animation: fadeInScale 0.5s ease-out forwards;
+}
+
+.slide-in-top {
+  animation: slideInFromTop 0.6s ease-out forwards;
+}
+
+.slide-in-bottom {
+  animation: slideInFromBottom 0.6s ease-out forwards;
+}
+
+.slide-in-left {
+  animation: slideInFromLeft 0.6s ease-out forwards;
+}
+
+.slide-in-right {
+  animation: slideInFromRight 0.6s ease-out forwards;
+}
+
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.flash-green {
+  animation: flashGreen 0.3s ease-out;
+}
+
+.flash-red {
+  animation: flashRed 0.5s ease-out;
+}
+
+.flash-gold {
+  animation: flashGold 1s ease-out;
+}

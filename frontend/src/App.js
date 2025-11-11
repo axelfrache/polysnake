@@ -6,9 +6,10 @@ import PowerUp from "./PowerUp";
 import PowerUpIndicator from "./PowerUpIndicator";
 import Menu from "./Menu";
 import Leaderboard from "./Leaderboard";
+import AnimatedBackground from "./components/AnimatedBackground";
+import Settings from "./components/Settings";
 import { scoreService } from "./services/api";
 import { GAME_MODES, POWER_UPS, POWER_UP_CONFIG, CHAOS_CONFIG, GAME_MODE_OBJECTIVES } from "./constants/gameConstants";
-import "./App.css";
 
 // Version 1.2 - Chaos Mode with bombs and power-ups
 
@@ -58,7 +59,9 @@ class App extends Component {
       ...initialState,
       username: "",
       gameMode: GAME_MODES.CLASSIC,
-      topScores: []
+      topScores: [],
+      settingsOpen: false,
+      glowEnabled: true
     };
     this.directionQueue = [];
     this.isGameOver = false;
@@ -253,8 +256,9 @@ class App extends Component {
     }
     
     // 2. Collision avec soi-même (sauf en mode ghost)
+    // Optimisation: on ne vérifie pas la tête (dernier élément) et on peut ignorer les 2 premiers segments
     if (this.state.activePowerUp !== POWER_UPS.GHOST_MODE) {
-      for (let i = 0; i < dots.length; i++) {
+      for (let i = 0; i < dots.length - 1; i++) {
         if (head[0] === dots[i][0] && head[1] === dots[i][1]) {
           this.isGameOver = true;
           this.gameOver();
@@ -394,10 +398,10 @@ class App extends Component {
       powerUpTimeRemaining: config.duration
     });
     
-    // Apply speed boost (légère accélération)
+    // Apply speed boost (10% plus vite)
     if (type === POWER_UPS.SPEED_BOOST) {
       clearInterval(this.gameInterval);
-      this.gameInterval = setInterval(this.moveSnake, Math.max(this.state.speed * 0.75, 40));
+      this.gameInterval = setInterval(this.moveSnake, Math.max(this.state.speed * 0.9, 40));
     }
     
     // Start countdown timer
@@ -468,6 +472,18 @@ class App extends Component {
   gameOver = async () => {
     const finalScore = this.state.snakeDots.length - 2;
     
+    // Nettoyer les power-ups actifs
+    if (this.powerUpInterval) {
+      clearInterval(this.powerUpInterval);
+      this.powerUpInterval = null;
+    }
+    
+    // Restaurer la vitesse normale si speed boost était actif
+    if (this.state.activePowerUp === POWER_UPS.SPEED_BOOST) {
+      clearInterval(this.gameInterval);
+      this.gameInterval = setInterval(this.moveSnake, initialState.speed);
+    }
+    
     // Vérifier si le défi de M. Paf est réussi
     let message = `GAME OVER, ${this.state.username}! Your score is ${finalScore}`;
     if (this.state.gameMode === GAME_MODES.PAF && finalScore > 35) {
@@ -499,12 +515,19 @@ class App extends Component {
 
 
   render() {
-    const { route, snakeDots, food, topScores, bombs, powerUps, activePowerUp, powerUpTimeRemaining, gameMode, username } = this.state;
+    const { route, snakeDots, food, topScores, bombs, powerUps, activePowerUp, powerUpTimeRemaining, gameMode, username, settingsOpen, glowEnabled } = this.state;
     const score = snakeDots.length - 2;
     const isGhostMode = activePowerUp === POWER_UPS.GHOST_MODE;
     
     return (
-      <div>
+      <div className={`game-container ${!glowEnabled ? 'no-glow' : ''}`}>
+        <AnimatedBackground />
+        <Settings 
+          isOpen={settingsOpen}
+          onClose={() => this.setState({ settingsOpen: false })}
+          glowEnabled={glowEnabled}
+          onGlowToggle={(enabled) => this.setState({ glowEnabled: enabled })}
+        />
         {route === "menu" ? (
           <div>
             <div className="game-title">
@@ -517,6 +540,7 @@ class App extends Component {
               onGameModeChange={this.onGameModeChange}
               initialUsername={username}
               initialGameMode={gameMode}
+              onSettingsClick={() => this.setState({ settingsOpen: true })}
             />
             <Leaderboard scores={topScores} gameMode={gameMode} />
           </div>

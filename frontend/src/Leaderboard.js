@@ -1,5 +1,4 @@
 import React from "react";
-import "./Leaderboard.css";
 import { GAME_MODE_LABELS } from "./constants/gameConstants";
 
 const Leaderboard = ({ scores, gameMode }) => {

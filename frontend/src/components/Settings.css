@@ -1,0 +1,205 @@
+/* Settings Overlay */
+.settings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Settings Modal */
+.settings-modal {
+  background: rgba(10, 1, 24, 0.95);
+  border: 3px solid var(--color-primary, #2EFAD7);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 0 30px var(--color-primary, rgba(46, 250, 215, 0.5));
+  animation: slideInFromTop 0.4s ease-out;
+}
+
+/* Settings Header */
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--color-primary, rgba(46, 250, 215, 0.3));
+}
+
+.settings-title {
+  font-family: var(--font-display, 'Orbitron', sans-serif);
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--color-primary, #2EFAD7);
+  text-shadow: 0 0 15px var(--color-primary, rgba(46, 250, 215, 0.6));
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.settings-close {
+  background: transparent;
+  border: 2px solid var(--color-accent, #FF3DAE);
+  color: var(--color-accent, #FF3DAE);
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.settings-close:hover {
+  background: var(--color-accent, #FF3DAE);
+  color: var(--color-text, #FFFFFF);
+  transform: rotate(90deg);
+}
+
+/* Settings Content */
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.settings-section-title {
+  font-family: var(--font-body, 'Rajdhani', sans-serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text, #FFFFFF);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+.settings-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Override ThemeToggle positioning when inside Settings */
+.settings-modal .theme-toggle-container {
+  position: relative;
+  top: auto;
+  right: auto;
+  z-index: auto;
+}
+
+.settings-modal .theme-dropdown {
+  top: calc(100% + 4px);
+  margin-top: 0;
+}
+
+/* Checkbox */
+.settings-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.settings-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox-custom {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--color-primary, #2EFAD7);
+  border-radius: 6px;
+  background: rgba(26, 10, 46, 0.6);
+  position: relative;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.checkbox-custom::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  color: var(--color-text, #FFFFFF);
+  font-size: 16px;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+}
+
+.settings-checkbox input[type="checkbox"]:checked + .checkbox-custom {
+  background: var(--color-primary, #2EFAD7);
+  border-color: var(--color-primary, #2EFAD7);
+}
+
+.settings-checkbox input[type="checkbox"]:checked + .checkbox-custom::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.checkbox-label {
+  font-family: var(--font-body, 'Rajdhani', sans-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text, #FFFFFF);
+}
+
+.settings-description {
+  font-family: var(--font-body, 'Rajdhani', sans-serif);
+  font-size: 14px;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+  margin: 0;
+  padding-left: 36px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media only screen and (max-width: 600px) {
+  .settings-modal {
+    padding: 20px;
+    max-width: 95%;
+  }
+  
+  .settings-title {
+    font-size: 24px;
+  }
+}

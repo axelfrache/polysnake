@@ -1,0 +1,263 @@
+/* Game Container */
+.game-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Game Title */
+.game-title {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 8vw, 72px);
+  font-weight: 900;
+  text-align: center;
+  margin: 20px 0;
+  color: var(--neon-turquoise);
+  text-shadow: var(--glow-turquoise);
+  letter-spacing: 8px;
+  animation: slideInFromTop 0.8s ease-out;
+  text-transform: uppercase;
+}
+
+.game-title-ingame {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 6vw, 56px);
+  font-weight: 900;
+  text-align: center;
+  margin: 10px 0 5px;
+  color: var(--neon-turquoise);
+  text-shadow: var(--glow-turquoise);
+  letter-spacing: 6px;
+  animation: fadeIn 0.5s ease-out;
+  text-transform: uppercase;
+}
+
+/* Score Display */
+.game-score {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 4vw, 36px);
+  font-weight: 700;
+  text-align: center;
+  margin: 10px 0;
+  color: var(--neon-blue);
+  text-shadow: 0 0 15px rgba(0, 217, 255, 0.8), 0 0 30px rgba(0, 217, 255, 0.4);
+  letter-spacing: 3px;
+  animation: slideInFromTop 0.6s ease-out 0.2s both;
+  position: relative;
+}
+
+.game-score::before {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+  box-shadow: 0 0 10px var(--neon-blue);
+}
+
+/* Objective Display */
+.game-objective {
+  font-family: var(--font-body);
+  font-size: clamp(12px, 2.5vw, 16px);
+  font-weight: 600;
+  text-align: center;
+  margin: 10px auto;
+  padding: 8px 20px;
+  color: var(--neon-magenta);
+  text-shadow: var(--glow-magenta);
+  letter-spacing: 2px;
+  animation: slideInFromTop 0.6s ease-out 0.4s both;
+  background: rgba(255, 46, 151, 0.1);
+  border: 1px solid rgba(255, 46, 151, 0.3);
+  border-radius: 20px;
+  display: block;
+  max-width: fit-content;
+  text-transform: uppercase;
+}
+
+/* Game Area */
+.game-area {
+  position: relative;
+  width: 510px;
+  height: 450px;
+  border: 3px solid var(--neon-turquoise);
+  border-radius: 20px;
+  margin: 15px auto;
+  box-shadow: var(--glow-turquoise),
+              inset 0 0 30px rgba(46, 250, 215, 0.1);
+  background: rgba(10, 1, 24, 0.6);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  animation: fadeInScale 0.8s ease-out 0.3s both;
+  transition: box-shadow 0.3s ease;
+}
+
+.game-area:hover {
+  box-shadow: 0 0 30px rgba(46, 250, 215, 0.8), 
+              0 0 60px rgba(46, 250, 215, 0.5),
+              inset 0 0 30px rgba(46, 250, 215, 0.15);
+}
+
+.no-glow .game-area {
+  box-shadow: 0 0 10px rgba(46, 250, 215, 0.3);
+}
+
+.no-glow .game-area:hover {
+  box-shadow: 0 0 15px rgba(46, 250, 215, 0.4);
+}
+
+/* Game Elements */
+.snake {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: var(--color-primary, #2EFAD7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  box-shadow: 0 0 10px var(--color-primary, rgba(46, 250, 215, 0.6)),
+              0 0 20px var(--color-primary, rgba(46, 250, 215, 0.3));
+}
+
+/* Disable glow mode */
+.no-glow .snake {
+  box-shadow: none;
+}
+
+.snake.ghost-mode {
+  opacity: 0.6;
+  background: var(--color-accent, #FF3DAE);
+  box-shadow: 0 0 12px var(--color-accent, rgba(255, 46, 151, 0.7)),
+              0 0 24px var(--color-accent, rgba(255, 46, 151, 0.4));
+  animation: ghostPulse 1s ease-in-out infinite;
+}
+
+@keyframes ghostPulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.food {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle, var(--color-accent, #FF3DAE), var(--color-accent, #FF3DAE) 70%, transparent);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  box-shadow: 0 0 15px var(--color-accent, rgba(255, 46, 151, 0.8)),
+              0 0 30px var(--color-accent, rgba(255, 46, 151, 0.4));
+  animation: foodPulse 2s ease-in-out infinite;
+}
+
+.no-glow .food {
+  box-shadow: none;
+  background: var(--color-accent, #FF3DAE);
+}
+
+.bomb {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  filter: drop-shadow(0 0 8px rgba(255, 70, 70, 0.8));
+  animation: bombShake 0.5s ease-in-out infinite;
+}
+
+.power-up {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  filter: drop-shadow(0 0 12px var(--color-positive, rgba(22, 242, 164, 0.9)));
+  animation: powerUpFloat 2s ease-in-out infinite;
+}
+
+/* Animations */
+@keyframes foodPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 15px var(--color-accent, rgba(255, 46, 151, 0.8)),
+                0 0 30px var(--color-accent, rgba(255, 46, 151, 0.4));
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px var(--color-accent, rgba(255, 46, 151, 1)),
+                0 0 40px var(--color-accent, rgba(255, 46, 151, 0.6));
+  }
+}
+
+@keyframes bombShake {
+  0%, 100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes powerUpFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Responsive */
+@media only screen and (max-width: 600px) {
+  .game-container {
+    padding: 10px;
+  }
+  
+  .game-title {
+    margin: 10px 0;
+  }
+  
+  .game-area {
+    width: min(510px, 90vw);
+    height: min(450px, calc(90vw * 450 / 510));
+    border-width: 2px;
+    border-radius: 15px;
+  }
+  
+  .snake, .food, .bomb, .power-up {
+    width: calc(30px * min(90vw, 510px) / 510);
+    height: calc(30px * min(90vw, 510px) / 510);
+  }
+  
+  .bomb, .power-up {
+    font-size: calc(24px * min(90vw, 510px) / 510);
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .game-area {
+    width: min(510px, 95vw);
+    height: min(450px, calc(95vw * 450 / 510));
+  }
+  
+  .snake, .food, .bomb, .power-up {
+    width: calc(30px * min(95vw, 510px) / 510);
+    height: calc(30px * min(95vw, 510px) / 510);
+  }
+  
+  .bomb, .power-up {
+    font-size: calc(24px * min(95vw, 510px) / 510);
+  }
+}

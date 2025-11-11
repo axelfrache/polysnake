@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import "./Menu.css";
 import { GAME_MODES, GAME_MODE_LABELS } from "./constants/gameConstants";
 
-const Menu = ({ onRouteChange, onUsernameSet, onGameModeSet, onGameModeChange, initialUsername = "", initialGameMode = GAME_MODES.CLASSIC }) => {
+const Menu = ({ onRouteChange, onUsernameSet, onGameModeSet, onGameModeChange, initialUsername = "", initialGameMode = GAME_MODES.CLASSIC, onSettingsClick }) => {
   const [username, setUsername] = useState(initialUsername);
   const [gameMode, setGameMode] = useState(initialGameMode);
   const [error, setError] = useState("");
@@ -34,7 +33,7 @@ const Menu = ({ onRouteChange, onUsernameSet, onGameModeSet, onGameModeChange, i
       <div className="menu-content">
         <input
           type="text"
-          className="username-input"
+          className="input-field"
           placeholder="Enter your username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -64,12 +63,24 @@ const Menu = ({ onRouteChange, onUsernameSet, onGameModeSet, onGameModeChange, i
         </div>
         
         {error && <div className="error-message">{error}</div>}
-        <input
-          onClick={handleStart}
-          className="start"
-          type="button"
-          value="START GAME"
-        />
+        
+        <div className="menu-buttons">
+          <button
+            onClick={handleStart}
+            className="start-button"
+            type="button"
+          >
+            START GAME
+          </button>
+          
+          <button
+            onClick={onSettingsClick}
+            className="settings-button"
+            type="button"
+          >
+            ⚙️ SETTINGS
+          </button>
+        </div>
       </div>
     </div>
   );

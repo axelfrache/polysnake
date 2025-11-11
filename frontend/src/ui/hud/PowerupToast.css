@@ -1,0 +1,91 @@
+.powerup-toast {
+  position: absolute;
+  top: 80px;
+  right: 20px;
+  min-width: 200px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(15px);
+  border: 2px solid var(--color-accent);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 0 calc(var(--glow-blur) * var(--glow-intensity)) var(--color-accent);
+  animation: slideInFromRight 0.3s ease-out;
+  z-index: 100;
+}
+
+.powerup-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.powerup-icon {
+  font-size: 32px;
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+.powerup-info {
+  flex: 1;
+}
+
+.powerup-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.powerup-time {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.powerup-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.powerup-progress-fill {
+  height: 100%;
+  transition: width 0.05s linear;
+  border-radius: 3px;
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .powerup-toast {
+    top: 60px;
+    right: 10px;
+    min-width: 160px;
+    padding: 12px;
+  }
+  
+  .powerup-icon {
+    font-size: 24px;
+  }
+  
+  .powerup-name {
+    font-size: 14px;
+  }
+  
+  .powerup-time {
+    font-size: 12px;
+  }
+}

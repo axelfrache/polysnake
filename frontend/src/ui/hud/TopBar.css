@@ -1,0 +1,111 @@
+.top-bar {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.score-display {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-shadow: 0 0 var(--glow-blur) var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--color-border);
+  border-radius: 16px;
+  box-shadow: 0 0 calc(var(--glow-blur) * var(--glow-intensity)) var(--color-border);
+  transition: all 0.3s ease;
+}
+
+.score-display.high-score {
+  color: #FFD700;
+  text-shadow: 0 0 calc(var(--glow-blur) * 1.5) #FFD700;
+  border-color: #FFD700;
+  animation: goldPulse 2s ease-in-out infinite;
+}
+
+.score-label {
+  font-size: 18px;
+  opacity: 0.8;
+  letter-spacing: 2px;
+}
+
+.score-value {
+  font-size: 32px;
+  letter-spacing: 1px;
+}
+
+.crown-icon {
+  font-size: 24px;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+.mode-tag {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-shadow: 0 0 calc(var(--glow-blur) * 0.5) var(--color-accent);
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border: 2px solid;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+@keyframes goldPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px #FFD700, 0 0 40px #FFD70080;
+  }
+  50% {
+    box-shadow: 0 0 30px #FFD700, 0 0 60px #FFD700;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@media (max-width: 600px) {
+  .top-bar {
+    top: 10px;
+    gap: 10px;
+  }
+  
+  .score-display {
+    font-size: 20px;
+    padding: 8px 16px;
+    gap: 8px;
+  }
+  
+  .score-label {
+    font-size: 14px;
+  }
+  
+  .score-value {
+    font-size: 24px;
+  }
+  
+  .mode-tag {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}

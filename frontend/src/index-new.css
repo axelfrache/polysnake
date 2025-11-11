@@ -1,0 +1,22 @@
+/* Import all style modules */
+@import './styles/theme.css';
+@import './styles/animations.css';
+@import './styles/game.css';
+@import './styles/menu.css';
+@import './styles/leaderboard.css';
+
+/* Base Reset */
+html {
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Root Container */
+#root {
+  position: relative;
+  min-height: 100vh;
+}
