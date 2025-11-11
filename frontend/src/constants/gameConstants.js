@@ -1,12 +1,18 @@
 // Game Modes
 export const GAME_MODES = {
   CLASSIC: 'classic',
-  CHAOS: 'chaos'
+  CHAOS: 'chaos',
+  PAF: 'paf'
 };
 
 export const GAME_MODE_LABELS = {
   [GAME_MODES.CLASSIC]: 'Classic Mode',
-  [GAME_MODES.CHAOS]: 'Chaos Mode'
+  [GAME_MODES.CHAOS]: 'Chaos Mode',
+  [GAME_MODES.PAF]: 'Défi de M. Paf'
+};
+
+export const GAME_MODE_OBJECTIVES = {
+  [GAME_MODES.PAF]: 'Objectif: Battre M. Paf à son propre jeu'
 };
 
 // Power-up types

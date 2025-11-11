@@ -7,7 +7,7 @@ import PowerUpIndicator from "./PowerUpIndicator";
 import Menu from "./Menu";
 import Leaderboard from "./Leaderboard";
 import { scoreService } from "./services/api";
-import { GAME_MODES, POWER_UPS, POWER_UP_CONFIG, CHAOS_CONFIG } from "./constants/gameConstants";
+import { GAME_MODES, POWER_UPS, POWER_UP_CONFIG, CHAOS_CONFIG, GAME_MODE_OBJECTIVES } from "./constants/gameConstants";
 
 // Version 1.2 - Chaos Mode with bombs and power-ups
 
@@ -64,17 +64,29 @@ class App extends Component {
     this.hasEaten = false;
     this.gameInterval = null;
     this.powerUpInterval = null;
+    // Touch controls
+    this.touchStartX = 0;
+    this.touchStartY = 0;
   }
 
   componentDidMount() {
     this.gameInterval = setInterval(this.moveSnake, this.state.speed);
     document.onkeydown = this.onKeyDown;
+    
+    // Touch events for mobile
+    document.addEventListener('touchstart', this.handleTouchStart, { passive: false });
+    document.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+    
     this.loadTopScores();
   }
 
   componentWillUnmount() {
     if (this.gameInterval) clearInterval(this.gameInterval);
     if (this.powerUpInterval) clearInterval(this.powerUpInterval);
+    
+    // Remove touch listeners
+    document.removeEventListener('touchstart', this.handleTouchStart);
+    document.removeEventListener('touchmove', this.handleTouchMove);
   }
 
   loadTopScores = async () => {
@@ -144,6 +156,65 @@ class App extends Component {
     if (newDirection && this.directionQueue.length < 3) {
       this.directionQueue.push(newDirection);
     }
+  };
+
+  handleTouchStart = (e) => {
+    if (this.state.route !== "game") return;
+    
+    const touch = e.touches[0];
+    this.touchStartX = touch.clientX;
+    this.touchStartY = touch.clientY;
+  };
+
+  handleTouchMove = (e) => {
+    if (this.state.route !== "game") return;
+    if (!this.touchStartX || !this.touchStartY) return;
+    
+    e.preventDefault(); // Empêcher le scroll
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - this.touchStartX;
+    const deltaY = touch.clientY - this.touchStartY;
+    
+    // Seuil minimum pour détecter un swipe (30px)
+    const minSwipeDistance = 30;
+    
+    if (Math.abs(deltaX) < minSwipeDistance && Math.abs(deltaY) < minSwipeDistance) {
+      return;
+    }
+    
+    // Déterminer la direction du swipe
+    const lastDirection = this.directionQueue.length > 0 
+      ? this.directionQueue[this.directionQueue.length - 1]
+      : this.state.direction;
+    
+    let newDirection = null;
+    
+    // Swipe horizontal ou vertical ?
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // Swipe horizontal
+      if (deltaX > 0 && lastDirection !== "LEFT") {
+        newDirection = "RIGHT";
+      } else if (deltaX < 0 && lastDirection !== "RIGHT") {
+        newDirection = "LEFT";
+      }
+    } else {
+      // Swipe vertical
+      if (deltaY > 0 && lastDirection !== "UP") {
+        newDirection = "DOWN";
+      } else if (deltaY < 0 && lastDirection !== "DOWN") {
+        newDirection = "UP";
+      }
+    }
+    
+    // Ajouter la direction à la queue
+    if (newDirection && this.directionQueue.length < 3) {
+      this.directionQueue.push(newDirection);
+    }
+    
+    // Réinitialiser les positions de départ pour le prochain swipe
+    this.touchStartX = touch.clientX;
+    this.touchStartY = touch.clientY;
   };
 
   moveSnake = () => {
@@ -396,18 +467,24 @@ class App extends Component {
   gameOver = async () => {
     const finalScore = this.state.snakeDots.length - 2;
     
+    // Vérifier si le défi de M. Paf est réussi
+    let message = `GAME OVER, ${this.state.username}! Your score is ${finalScore}`;
+    if (this.state.gameMode === GAME_MODES.PAF && finalScore > 35) {
+      message = `🎉 FÉLICITATIONS ${this.state.username}! 🎉\n\nVous avez battu M. Paf avec un score de ${finalScore}!\n\n🔑 Code secret: pafsupreme 🔑\n\nNotez bien ce code pour valider votre quête!`;
+    }
+    
     // Sauvegarder le score une seule fois
     if (this.state.username && finalScore > 0) {
       try {
         await scoreService.saveScore(this.state.username, finalScore, this.state.gameMode);
         await this.loadTopScores();
-        alert(`GAME OVER, ${this.state.username}! Your score is ${finalScore}`);
+        alert(message);
       } catch (error) {
         console.error("Failed to save score:", error);
         alert(`GAME OVER! Your score is ${finalScore}\n\nError saving score: ${error.message || 'Server error'}`);
       }
     } else {
-      alert(`GAME OVER, ${this.state.username}! Your score is ${finalScore}`);
+      alert(message);
     }
     
     this.setState({
@@ -483,6 +560,20 @@ class App extends Component {
             }}>
               SCORE: {score}
             </div>
+            {GAME_MODE_OBJECTIVES[gameMode] && (
+              <div style={{ 
+                textAlign: 'center', 
+                fontSize: '14px', 
+                fontWeight: 'bold', 
+                marginBottom: '10px', 
+                color: '#ff0080',
+                textShadow: '0 0 10px rgba(255, 0, 128, 0.8)',
+                fontFamily: '"Courier New", Courier, monospace',
+                letterSpacing: '1px'
+              }}>
+                {GAME_MODE_OBJECTIVES[gameMode]}
+              </div>
+            )}
             <div className="game-area">
               <Snake snakeDots={snakeDots} isGhostMode={isGhostMode} />
               <Food dot={food} />
