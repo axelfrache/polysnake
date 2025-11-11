@@ -31,8 +31,10 @@ public class ScoreService {
             throw new IllegalArgumentException("Score is suspiciously high. Maximum allowed: 10000");
         }
         
-        Score score = scoreRepository.findByUsername(request.getUsername())
+        // Chercher si l'utilisateur existe déjà pour ce mode de jeu
+        Score score = scoreRepository.findByUsernameAndGameMode(request.getUsername(), request.getGameMode())
                 .map(existingScore -> {
+                    // Anti-triche : vérifier que l'utilisateur ne spam pas
                     Duration timeSinceLastUpdate = Duration.between(existingScore.getCreatedAt(), LocalDateTime.now());
                     if (timeSinceLastUpdate.toSeconds() < 10) {
                         log.warn("User {} is submitting scores too quickly ({}s since last update)", 
@@ -40,22 +42,25 @@ public class ScoreService {
                         throw new IllegalArgumentException("Please wait at least 10 seconds between score submissions");
                     }
                     
+                    // Si le nouveau score est meilleur, mettre à jour
                     if (request.getScore() > existingScore.getScore()) {
-                        log.info("Updating score for user: {} from {} to {}", 
-                                request.getUsername(), existingScore.getScore(), request.getScore());
+                        log.info("Updating score for user: {} in {} mode from {} to {}", 
+                                request.getUsername(), request.getGameMode(), existingScore.getScore(), request.getScore());
                         existingScore.setScore(request.getScore());
                         return existingScore;
                     } else {
-                        log.info("Keeping existing score for user: {} (existing: {}, new: {})", 
-                                request.getUsername(), existingScore.getScore(), request.getScore());
+                        log.info("Keeping existing score for user: {} in {} mode (existing: {}, new: {})", 
+                                request.getUsername(), request.getGameMode(), existingScore.getScore(), request.getScore());
                         return existingScore;
                     }
                 })
                 .orElseGet(() -> {
-                    log.info("Creating new score entry for user: {}", request.getUsername());
+                    // Créer un nouveau score si l'utilisateur n'existe pas pour ce mode
+                    log.info("Creating new score entry for user: {} in {} mode", request.getUsername(), request.getGameMode());
                     return Score.builder()
                             .username(request.getUsername())
                             .score(request.getScore())
+                            .gameMode(request.getGameMode())
                             .build();
                 });
         
@@ -66,9 +71,9 @@ public class ScoreService {
     }
 
     @Transactional(readOnly = true)
-    public List<ScoreResponse> getTopScores() {
-        log.info("Fetching top 10 scores");
-        List<Score> scores = scoreRepository.findTopScores();
+    public List<ScoreResponse> getTopScores(String gameMode) {
+        log.info("Fetching top 10 scores for {} mode", gameMode);
+        List<Score> scores = scoreRepository.findTopScoresByGameMode(gameMode);
         return scores.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -79,6 +84,7 @@ public class ScoreService {
                 .id(score.getId())
                 .username(score.getUsername())
                 .score(score.getScore())
+                .gameMode(score.getGameMode())
                 .createdAt(score.getCreatedAt())
                 .build();
     }

@@ -28,9 +28,10 @@ public class ScoreController {
     }
 
     @GetMapping("/top")
-    public ResponseEntity<List<ScoreResponse>> getTopScores() {
-        log.info("Received request to get top scores");
-        List<ScoreResponse> scores = scoreService.getTopScores();
+    public ResponseEntity<List<ScoreResponse>> getTopScores(
+            @RequestParam(defaultValue = "classic") String gameMode) {
+        log.info("Received request to get top scores for {} mode", gameMode);
+        List<ScoreResponse> scores = scoreService.getTopScores(gameMode);
         return ResponseEntity.ok(scores);
     }
 }

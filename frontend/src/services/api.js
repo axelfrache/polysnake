@@ -21,13 +21,13 @@ const getApiUrl = () => {
 const API_URL = getApiUrl();
 
 export const scoreService = {
-  async saveScore(username, score) {
+  async saveScore(username, score, gameMode) {
     const response = await fetch(`${API_URL}/api/scores`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ username, score }),
+      body: JSON.stringify({ username, score, gameMode }),
     });
     
     if (!response.ok) {
@@ -37,8 +37,8 @@ export const scoreService = {
     return response.json();
   },
 
-  async getTopScores() {
-    const response = await fetch(`${API_URL}/api/scores/top`);
+  async getTopScores(gameMode = 'classic') {
+    const response = await fetch(`${API_URL}/api/scores/top?gameMode=${gameMode}`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch scores');

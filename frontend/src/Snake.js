@@ -8,7 +8,8 @@ const Snake = props => {
           left: `${dot[0] * 15}px`,
           top: `${dot[1] * 15}px`
         };
-        return <div className="snake" key={i} style={style} />;
+        const className = props.isGhostMode ? "snake ghost-mode" : "snake";
+        return <div className={className} key={i} style={style} />;
       })}
     </div>
   );

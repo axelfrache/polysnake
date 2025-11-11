@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "scores", indexes = {
-    @Index(name = "idx_username", columnList = "username", unique = true)
+    @Index(name = "idx_username_gamemode", columnList = "username,gameMode", unique = true)
 })
 @Data
 @Builder
@@ -22,11 +22,14 @@ public class Score {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 50, unique = true)
+    @Column(nullable = false, length = 50)
     private String username;
 
     @Column(nullable = false)
     private Integer score;
+    
+    @Column(nullable = false, length = 20)
+    private String gameMode; // "classic" or "chaos"
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

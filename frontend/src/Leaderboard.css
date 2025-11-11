@@ -19,7 +19,18 @@
   text-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
   font-family: "Courier New", Courier, monospace;
   letter-spacing: 3px;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
+}
+
+.leaderboard-mode {
+  text-align: center;
+  font-size: 12px;
+  color: #00d9ff;
+  font-family: "Courier New", Courier, monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+  opacity: 0.8;
 }
 
 .leaderboard-list {

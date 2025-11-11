@@ -1,26 +1,40 @@
 import React, { Component } from "react";
 import Snake from "./Snake";
 import Food from "./Food";
+import Bomb from "./Bomb";
+import PowerUp from "./PowerUp";
+import PowerUpIndicator from "./PowerUpIndicator";
 import Menu from "./Menu";
 import Leaderboard from "./Leaderboard";
 import { scoreService } from "./services/api";
+import { GAME_MODES, POWER_UPS, POWER_UP_CONFIG, CHAOS_CONFIG } from "./constants/gameConstants";
 
-// Version 1.1 - Bug fix: collision detection après manger un food
+// Version 1.2 - Chaos Mode with bombs and power-ups
 
-const getRandomFood = (snakeDots = []) => {
+// Helper: Generate random position avoiding obstacles
+const getRandomPosition = (avoidPositions = []) => {
   let min = 1;
-  let maxX = 32; // 17 cases * 2 - 2
-  let maxY = 28; // 15 cases * 2 - 2
-  let food;
+  let maxX = 32;
+  let maxY = 28;
+  let position;
   
-  // Générer une position jusqu'à ce qu'elle ne soit pas sur le serpent
   do {
     let x = Math.floor((Math.random() * (maxX - min + 1) + min) / 2) * 2;
     let y = Math.floor((Math.random() * (maxY - min + 1) + min) / 2) * 2;
-    food = [x, y];
-  } while (snakeDots.some(dot => dot[0] === food[0] && dot[1] === food[1]));
+    position = [x, y];
+  } while (avoidPositions.some(pos => pos[0] === position[0] && pos[1] === position[1]));
   
-  return food;
+  return position;
+};
+
+const getRandomFood = (snakeDots = [], bombs = [], powerUps = []) => {
+  const avoidPositions = [...snakeDots, ...bombs, ...powerUps.map(p => p.position)];
+  return getRandomPosition(avoidPositions);
+};
+
+const getRandomPowerUpType = () => {
+  const types = Object.values(POWER_UPS);
+  return types[Math.floor(Math.random() * types.length)];
 };
 
 const initialState = {
@@ -28,7 +42,12 @@ const initialState = {
   direction: "RIGHT",
   speed: 100,
   route: "menu",
-  snakeDots: [[0, 0], [0, 2]]
+  snakeDots: [[0, 0], [0, 2]],
+  bombs: [],
+  powerUps: [],
+  activePowerUp: null,
+  powerUpTimeRemaining: 0,
+  foodCount: 0
 };
 
 class App extends Component {
@@ -37,22 +56,30 @@ class App extends Component {
     this.state = {
       ...initialState,
       username: "",
+      gameMode: GAME_MODES.CLASSIC,
       topScores: []
     };
     this.directionQueue = [];
     this.isGameOver = false;
     this.hasEaten = false;
+    this.gameInterval = null;
+    this.powerUpInterval = null;
   }
 
   componentDidMount() {
-    setInterval(this.moveSnake, this.state.speed);
+    this.gameInterval = setInterval(this.moveSnake, this.state.speed);
     document.onkeydown = this.onKeyDown;
     this.loadTopScores();
   }
 
+  componentWillUnmount() {
+    if (this.gameInterval) clearInterval(this.gameInterval);
+    if (this.powerUpInterval) clearInterval(this.powerUpInterval);
+  }
+
   loadTopScores = async () => {
     try {
-      const scores = await scoreService.getTopScores();
+      const scores = await scoreService.getTopScores(this.state.gameMode);
       this.setState({ topScores: scores });
     } catch (error) {
       console.error("Failed to load scores:", error);
@@ -61,8 +88,10 @@ class App extends Component {
 
   componentDidUpdate() {
     // La détection de collision est maintenant dans moveSnake()
-    // On vérifie juste si le serpent mange
+    // On vérifie juste si le serpent mange et les interactions du Chaos Mode
     this.onSnakeEats();
+    this.checkBombCollision();
+    this.checkPowerUpCollection();
   }
 
   onKeyDown = e => {
@@ -151,12 +180,14 @@ class App extends Component {
       return;
     }
     
-    // 2. Collision avec soi-même
-    for (let i = 0; i < dots.length; i++) {
-      if (head[0] === dots[i][0] && head[1] === dots[i][1]) {
-        this.isGameOver = true;
-        this.gameOver();
-        return;
+    // 2. Collision avec soi-même (sauf en mode ghost)
+    if (this.state.activePowerUp !== POWER_UPS.GHOST_MODE) {
+      for (let i = 0; i < dots.length; i++) {
+        if (head[0] === dots[i][0] && head[1] === dots[i][1]) {
+          this.isGameOver = true;
+          this.gameOver();
+          return;
+        }
       }
     }
     
@@ -200,12 +231,131 @@ class App extends Component {
     let head = this.state.snakeDots[this.state.snakeDots.length - 1];
     let food = this.state.food;
     if (head[0] == food[0] && head[1] == food[1]) {
-      this.setState({
-        food: getRandomFood(this.state.snakeDots)
-      });
+      const newFoodCount = this.state.foodCount + 1;
+      const newState = {
+        food: getRandomFood(this.state.snakeDots, this.state.bombs, this.state.powerUps),
+        foodCount: newFoodCount
+      };
+      
+      // Chaos Mode: spawn bombs and power-ups
+      if (this.state.gameMode === GAME_MODES.CHAOS) {
+        // Spawn bomb every BOMB_SPAWN_INTERVAL foods
+        if (newFoodCount % CHAOS_CONFIG.BOMB_SPAWN_INTERVAL === 0 && this.state.bombs.length < CHAOS_CONFIG.MAX_BOMBS) {
+          const bombPosition = getRandomPosition([
+            ...this.state.snakeDots,
+            ...this.state.bombs,
+            ...this.state.powerUps.map(p => p.position),
+            newState.food
+          ]);
+          newState.bombs = [...this.state.bombs, bombPosition];
+        }
+        
+        // Spawn power-up every POWER_UP_SPAWN_INTERVAL foods
+        if (newFoodCount % CHAOS_CONFIG.POWER_UP_SPAWN_INTERVAL === 0 && this.state.powerUps.length === 0) {
+          const powerUpPosition = getRandomPosition([
+            ...this.state.snakeDots,
+            ...this.state.bombs,
+            newState.food
+          ]);
+          newState.powerUps = [{
+            position: powerUpPosition,
+            type: getRandomPowerUpType()
+          }];
+        }
+      }
+      
+      this.setState(newState);
       this.hasEaten = true;
       this.increaseSpeed();
     }
+  }
+  
+  checkBombCollision() {
+    if (this.state.gameMode !== GAME_MODES.CHAOS) return;
+    if (this.state.activePowerUp === POWER_UPS.GHOST_MODE) return; // Ghost mode protects from bombs
+    
+    const head = this.state.snakeDots[this.state.snakeDots.length - 1];
+    const hitBomb = this.state.bombs.some(bomb => bomb[0] === head[0] && bomb[1] === head[1]);
+    
+    if (hitBomb && !this.isGameOver) {
+      this.isGameOver = true;
+      this.gameOver();
+    }
+  }
+  
+  checkPowerUpCollection() {
+    if (this.state.gameMode !== GAME_MODES.CHAOS) return;
+    
+    const head = this.state.snakeDots[this.state.snakeDots.length - 1];
+    const powerUpIndex = this.state.powerUps.findIndex(
+      pu => pu.position[0] === head[0] && pu.position[1] === head[1]
+    );
+    
+    if (powerUpIndex !== -1) {
+      const powerUp = this.state.powerUps[powerUpIndex];
+      this.activatePowerUp(powerUp.type);
+      
+      // Remove collected power-up
+      const newPowerUps = [...this.state.powerUps];
+      newPowerUps.splice(powerUpIndex, 1);
+      this.setState({ powerUps: newPowerUps });
+    }
+  }
+  
+  activatePowerUp(type) {
+    // Clear previous power-up timer
+    if (this.powerUpInterval) {
+      clearInterval(this.powerUpInterval);
+    }
+    
+    const config = POWER_UP_CONFIG[type];
+    
+    // Instant effects
+    if (type === POWER_UPS.BOMB_REMOVER) {
+      this.setState({ bombs: [], activePowerUp: null, powerUpTimeRemaining: 0 });
+      return;
+    }
+    
+    // Timed effects
+    this.setState({
+      activePowerUp: type,
+      powerUpTimeRemaining: config.duration
+    });
+    
+    // Apply speed boost (légère accélération)
+    if (type === POWER_UPS.SPEED_BOOST) {
+      clearInterval(this.gameInterval);
+      this.gameInterval = setInterval(this.moveSnake, Math.max(this.state.speed * 0.75, 40));
+    }
+    
+    // Start countdown timer
+    this.powerUpInterval = setInterval(() => {
+      const newTime = this.state.powerUpTimeRemaining - 100;
+      
+      if (newTime <= 0) {
+        this.deactivatePowerUp();
+      } else {
+        this.setState({ powerUpTimeRemaining: newTime });
+      }
+    }, 100);
+  }
+  
+  deactivatePowerUp() {
+    if (this.powerUpInterval) {
+      clearInterval(this.powerUpInterval);
+      this.powerUpInterval = null;
+    }
+    
+    // Restore normal speed if speed boost was active
+    if (this.state.activePowerUp === POWER_UPS.SPEED_BOOST) {
+      clearInterval(this.gameInterval);
+      this.gameInterval = setInterval(this.moveSnake, this.state.speed);
+    }
+    
+    this.setState({
+      activePowerUp: null,
+      powerUpTimeRemaining: 0
+    });
   }
 
   increaseSpeed() {
@@ -227,6 +377,21 @@ class App extends Component {
   onUsernameSet = (username) => {
     this.setState({ username });
   };
+  
+  onGameModeSet = (gameMode) => {
+    this.setState({ gameMode });
+  };
+  
+  onGameModeChange = async (gameMode) => {
+    // Mettre à jour le mode et recharger le leaderboard correspondant
+    this.setState({ gameMode });
+    try {
+      const scores = await scoreService.getTopScores(gameMode);
+      this.setState({ topScores: scores });
+    } catch (error) {
+      console.error("Failed to load scores:", error);
+    }
+  };
 
   gameOver = async () => {
     const finalScore = this.state.snakeDots.length - 2;
@@ -234,7 +399,7 @@ class App extends Component {
     // Sauvegarder le score une seule fois
     if (this.state.username && finalScore > 0) {
       try {
-        await scoreService.saveScore(this.state.username, finalScore);
+        await scoreService.saveScore(this.state.username, finalScore, this.state.gameMode);
         await this.loadTopScores();
         alert(`GAME OVER, ${this.state.username}! Your score is ${finalScore}`);
       } catch (error) {
@@ -248,6 +413,7 @@ class App extends Component {
     this.setState({
       ...initialState,
       username: this.state.username,
+      gameMode: this.state.gameMode,
       topScores: this.state.topScores
     });
     this.directionQueue = [];
@@ -255,8 +421,10 @@ class App extends Component {
 
 
   render() {
-    const { route, snakeDots, food, topScores } = this.state;
+    const { route, snakeDots, food, topScores, bombs, powerUps, activePowerUp, powerUpTimeRemaining, gameMode, username } = this.state;
     const score = snakeDots.length - 2;
+    const isGhostMode = activePowerUp === POWER_UPS.GHOST_MODE;
+    
     return (
       <div>
         {route === "menu" ? (
@@ -274,11 +442,22 @@ class App extends Component {
             }}>
               POLY SNAKE
             </div>
-            <Menu onRouteChange={this.onRouteChange} onUsernameSet={this.onUsernameSet} />
-            <Leaderboard scores={topScores} />
+            <Menu 
+              onRouteChange={this.onRouteChange} 
+              onUsernameSet={this.onUsernameSet}
+              onGameModeSet={this.onGameModeSet}
+              onGameModeChange={this.onGameModeChange}
+              initialUsername={username}
+              initialGameMode={gameMode}
+            />
+            <Leaderboard scores={topScores} gameMode={gameMode} />
           </div>
         ) : (
           <div>
+            <PowerUpIndicator 
+              activePowerUp={activePowerUp} 
+              timeRemaining={powerUpTimeRemaining} 
+            />
             <div style={{ 
               textAlign: 'center', 
               fontSize: '48px', 
@@ -305,10 +484,16 @@ class App extends Component {
               SCORE: {score}
             </div>
             <div className="game-area">
-              <Snake snakeDots={snakeDots} />
+              <Snake snakeDots={snakeDots} isGhostMode={isGhostMode} />
               <Food dot={food} />
+              {gameMode === GAME_MODES.CHAOS && bombs.map((bomb, i) => (
+                <Bomb key={`bomb-${i}`} dot={bomb} />
+              ))}
+              {gameMode === GAME_MODES.CHAOS && powerUps.map((powerUp, i) => (
+                <PowerUp key={`powerup-${i}`} dot={powerUp.position} type={powerUp.type} />
+              ))}
             </div>
-            <Leaderboard scores={topScores} />
+            <Leaderboard scores={topScores} gameMode={gameMode} />
           </div>
         )}
       </div>

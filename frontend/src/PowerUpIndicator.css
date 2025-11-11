@@ -1,0 +1,100 @@
+.power-up-indicator {
+  position: fixed;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
+  background: rgba(15, 12, 41, 0.95);
+  border: 2px solid #00ff88;
+  border-radius: 10px;
+  padding: 12px 20px;
+  min-width: 250px;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+.power-up-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.power-up-icon {
+  font-size: 28px;
+  animation: pulse 1s infinite;
+}
+
+.power-up-details {
+  flex: 1;
+}
+
+.power-up-name {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.power-up-effect {
+  color: #00d9ff;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.power-up-timer {
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+  min-width: 45px;
+  text-align: right;
+}
+
+.power-up-progress {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.power-up-progress-bar {
+  height: 100%;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 10px currentColor;
+}
+
+@media only screen and (max-width: 800px) {
+  .power-up-indicator {
+    left: 10px;
+    min-width: 180px;
+    padding: 8px 12px;
+  }
+  
+  .power-up-icon {
+    font-size: 20px;
+  }
+  
+  .power-up-name {
+    font-size: 11px;
+  }
+  
+  .power-up-effect {
+    font-size: 9px;
+  }
+  
+  .power-up-timer {
+    font-size: 13px;
+  }
+}

@@ -1,9 +1,18 @@
 import React, { useState } from "react";
 import "./Menu.css";
+import { GAME_MODES, GAME_MODE_LABELS } from "./constants/gameConstants";
 
-const Menu = ({ onRouteChange, onUsernameSet }) => {
-  const [username, setUsername] = useState("");
+const Menu = ({ onRouteChange, onUsernameSet, onGameModeSet, onGameModeChange, initialUsername = "", initialGameMode = GAME_MODES.CLASSIC }) => {
+  const [username, setUsername] = useState(initialUsername);
+  const [gameMode, setGameMode] = useState(initialGameMode);
   const [error, setError] = useState("");
+
+  const handleGameModeChange = (mode) => {
+    setGameMode(mode);
+    if (onGameModeChange) {
+      onGameModeChange(mode);
+    }
+  };
 
   const handleStart = () => {
     if (username.trim().length < 2) {
@@ -16,6 +25,7 @@ const Menu = ({ onRouteChange, onUsernameSet }) => {
     }
     setError("");
     onUsernameSet(username.trim());
+    onGameModeSet(gameMode);
     onRouteChange();
   };
 
@@ -31,6 +41,28 @@ const Menu = ({ onRouteChange, onUsernameSet }) => {
           onKeyPress={(e) => e.key === "Enter" && handleStart()}
           maxLength={50}
         />
+        
+        <div className="game-mode-selector">
+          <label className="mode-label">Select Game Mode:</label>
+          <div className="mode-options">
+            {Object.values(GAME_MODES).map(mode => (
+              <button
+                key={mode}
+                className={`mode-button ${gameMode === mode ? 'active' : ''}`}
+                onClick={() => handleGameModeChange(mode)}
+              >
+                {GAME_MODE_LABELS[mode]}
+                {mode === GAME_MODES.CHAOS && <span className="mode-badge">NEW!</span>}
+              </button>
+            ))}
+          </div>
+          {gameMode === GAME_MODES.CHAOS && (
+            <div className="mode-description">
+              ⚡ Chaos Mode: Dodge bombs 💣, collect power-ups, and survive!
+            </div>
+          )}
+        </div>
+        
         {error && <div className="error-message">{error}</div>}
         <input
           onClick={handleStart}

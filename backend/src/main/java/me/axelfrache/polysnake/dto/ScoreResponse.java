@@ -15,5 +15,6 @@ public class ScoreResponse {
     private Long id;
     private String username;
     private Integer score;
+    private String gameMode;
     private LocalDateTime createdAt;
 }

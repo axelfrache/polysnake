@@ -11,11 +11,8 @@ import java.util.Optional;
 @Repository
 public interface ScoreRepository extends JpaRepository<Score, Long> {
 
-    @Query("SELECT s FROM Score s ORDER BY s.score DESC, s.createdAt ASC")
-    List<Score> findTop10ByOrderByScoreDescCreatedAtAsc();
-
-    @Query("SELECT s FROM Score s ORDER BY s.score DESC, s.createdAt ASC LIMIT 10")
-    List<Score> findTopScores();
+    @Query("SELECT s FROM Score s WHERE s.gameMode = :gameMode ORDER BY s.score DESC, s.createdAt ASC LIMIT 10")
+    List<Score> findTopScoresByGameMode(String gameMode);
     
-    Optional<Score> findByUsername(String username);
+    Optional<Score> findByUsernameAndGameMode(String username, String gameMode);
 }
