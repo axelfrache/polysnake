@@ -1,14 +1,16 @@
 body {
   background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-  height: 100vh;
+  min-height: 100vh;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 html {
-  overflow: hidden;
+  overflow-x: hidden;
 }
+
 .game-area {
   position: relative;
   width: 510px;  /* (32 + 2) * 15px = 510px (maxX=32, +2 pour la dernière case) */
@@ -16,29 +18,57 @@ html {
   border: 3px solid #00ff88;
   border-radius: 15px;
   margin: 10px auto;
-  display: flex;
-  flex-wrap: wrap;
   box-shadow: 0 0 30px rgba(0, 255, 136, 0.5), 0 0 60px rgba(0, 255, 136, 0.3);
   background: rgba(15, 12, 41, 0.8);
   overflow: hidden; /* Empêcher le débordement visuel */
 }
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 600px) {
   .game-area {
-    position: relative;
-    width: 340px;  /* 17 cases * 20px = 340px */
-    height: 300px; /* 15 cases * 20px = 300px */
-    overflow: hidden;
+    width: min(510px, 90vw);
+    height: min(450px, calc(90vw * 450 / 510));
+    border-width: 2px;
+    border-radius: 10px;
   }
-
+  
+  /* Ajuster la taille des éléments proportionnellement */
   .snake {
-    width: 20px;
-    height: 20px;
+    width: calc(30px * min(90vw, 510px) / 510);
+    height: calc(30px * min(90vw, 510px) / 510);
   }
   
   .food {
-    width: 20px;
-    height: 20px;
+    width: calc(30px * min(90vw, 510px) / 510);
+    height: calc(30px * min(90vw, 510px) / 510);
+  }
+  
+  .bomb, .power-up {
+    width: calc(30px * min(90vw, 510px) / 510);
+    height: calc(30px * min(90vw, 510px) / 510);
+    font-size: calc(24px * min(90vw, 510px) / 510);
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .game-area {
+    width: min(510px, 95vw);
+    height: min(450px, calc(95vw * 450 / 510));
+  }
+  
+  .snake {
+    width: calc(30px * min(95vw, 510px) / 510);
+    height: calc(30px * min(95vw, 510px) / 510);
+  }
+  
+  .food {
+    width: calc(30px * min(95vw, 510px) / 510);
+    height: calc(30px * min(95vw, 510px) / 510);
+  }
+  
+  .bomb, .power-up {
+    width: calc(30px * min(95vw, 510px) / 510);
+    height: calc(30px * min(95vw, 510px) / 510);
+    font-size: calc(24px * min(95vw, 510px) / 510);
   }
 }
 

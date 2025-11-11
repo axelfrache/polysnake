@@ -8,6 +8,7 @@ import Menu from "./Menu";
 import Leaderboard from "./Leaderboard";
 import { scoreService } from "./services/api";
 import { GAME_MODES, POWER_UPS, POWER_UP_CONFIG, CHAOS_CONFIG, GAME_MODE_OBJECTIVES } from "./constants/gameConstants";
+import "./App.css";
 
 // Version 1.2 - Chaos Mode with bombs and power-ups
 
@@ -506,17 +507,7 @@ class App extends Component {
       <div>
         {route === "menu" ? (
           <div>
-            <div style={{ 
-              textAlign: 'center', 
-              fontSize: '56px', 
-              fontWeight: 'bold', 
-              marginTop: '30px',
-              marginBottom: '20px', 
-              color: '#00ff88',
-              textShadow: '0 0 20px rgba(0, 255, 136, 1), 0 0 40px rgba(0, 255, 136, 0.6), 0 0 60px rgba(0, 255, 136, 0.4)',
-              fontFamily: '"Courier New", Courier, monospace',
-              letterSpacing: '8px'
-            }}>
+            <div className="game-title">
               POLYSNAKE
             </div>
             <Menu 
@@ -535,42 +526,14 @@ class App extends Component {
               activePowerUp={activePowerUp} 
               timeRemaining={powerUpTimeRemaining} 
             />
-            <div style={{ 
-              textAlign: 'center', 
-              fontSize: '48px', 
-              fontWeight: 'bold', 
-              marginTop: '15px',
-              marginBottom: '5px', 
-              color: '#00ff88',
-              textShadow: '0 0 20px rgba(0, 255, 136, 1), 0 0 40px rgba(0, 255, 136, 0.6)',
-              fontFamily: '"Courier New", Courier, monospace',
-              letterSpacing: '6px'
-            }}>
+            <div className="game-title-ingame">
               POLY SNAKE
             </div>
-            <div style={{ 
-              textAlign: 'center', 
-              fontSize: '28px', 
-              fontWeight: 'bold', 
-              marginBottom: '10px', 
-              color: '#00d9ff',
-              textShadow: '0 0 10px rgba(0, 217, 255, 0.8), 0 0 20px rgba(0, 217, 255, 0.5)',
-              fontFamily: '"Courier New", Courier, monospace',
-              letterSpacing: '2px'
-            }}>
+            <div className="game-score">
               SCORE: {score}
             </div>
             {GAME_MODE_OBJECTIVES[gameMode] && (
-              <div style={{ 
-                textAlign: 'center', 
-                fontSize: '14px', 
-                fontWeight: 'bold', 
-                marginBottom: '10px', 
-                color: '#ff0080',
-                textShadow: '0 0 10px rgba(255, 0, 128, 0.8)',
-                fontFamily: '"Courier New", Courier, monospace',
-                letterSpacing: '1px'
-              }}>
+              <div className="game-objective">
                 {GAME_MODE_OBJECTIVES[gameMode]}
               </div>
             )}

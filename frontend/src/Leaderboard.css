@@ -96,5 +96,41 @@
     top: auto;
     transform: none;
     margin: 20px auto;
+    max-width: 95vw;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .leaderboard {
+    width: 100%;
+    max-width: 95vw;
+    padding: 15px;
+  }
+  
+  .leaderboard-title {
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+  
+  .leaderboard-mode {
+    font-size: 10px;
+    margin-bottom: 12px;
+  }
+  
+  .leaderboard-item {
+    padding: 8px 12px;
+  }
+  
+  .rank {
+    font-size: 14px;
+    min-width: 30px;
+  }
+  
+  .username {
+    font-size: 12px;
+  }
+  
+  .score {
+    font-size: 14px;
   }
 }
