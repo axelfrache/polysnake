@@ -3,6 +3,7 @@
   top: 20px;
   right: 20px;
   z-index: 1000;
+  display: inline-block;
 }
 
 .theme-toggle-button {
@@ -35,7 +36,7 @@
 
 .theme-dropdown {
   position: absolute;
-  top: 60px;
+  top: calc(100% + 8px);
   right: 0;
   min-width: 200px;
   background: rgba(0, 0, 0, 0.95);
@@ -45,6 +46,7 @@
   padding: 8px;
   box-shadow: 0 0 25px rgba(46, 250, 215, 0.5);
   animation: slideDown 0.3s ease-out;
+  z-index: 10;
 }
 
 .theme-option {
