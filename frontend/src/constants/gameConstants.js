@@ -25,21 +25,21 @@ export const POWER_UPS = {
 // Power-up configurations
 export const POWER_UP_CONFIG = {
   [POWER_UPS.SPEED_BOOST]: {
-    duration: 7000, // 7 seconds
+    duration: 7000,
     icon: '⚡',
     color: '#FFD700',
     name: 'Speed Boost',
     effect: 'Increased speed'
   },
   [POWER_UPS.BOMB_REMOVER]: {
-    duration: 0, // Instant effect
+    duration: 0,
     icon: '💣',
     color: '#9B59B6',
     name: 'Bomb Remover',
     effect: 'Removes all bombs'
   },
   [POWER_UPS.GHOST_MODE]: {
-    duration: 5000, // 5 seconds
+    duration: 5000,
     icon: '👻',
     color: '#00FFFF',
     name: 'Ghost Mode',
@@ -50,13 +50,13 @@ export const POWER_UP_CONFIG = {
 // Spawn probabilities (out of 100)
 export const SPAWN_PROBABILITY = {
   FOOD: 100,
-  BOMB: 15, // 15% chance per food spawn
-  POWER_UP: 8  // 8% chance per food spawn
+  BOMB: 15,
+  POWER_UP: 8
 };
 
 // Chaos mode configuration
 export const CHAOS_CONFIG = {
   MAX_BOMBS: 5,
-  BOMB_SPAWN_INTERVAL: 3, // Spawn bomb every 3 food items
-  POWER_UP_SPAWN_INTERVAL: 5 // Spawn power-up every 5 food items
+  BOMB_SPAWN_INTERVAL: 3,
+  POWER_UP_SPAWN_INTERVAL: 5
 };

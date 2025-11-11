@@ -11,9 +11,7 @@ import Settings from "./components/Settings";
 import { scoreService } from "./services/api";
 import { GAME_MODES, POWER_UPS, POWER_UP_CONFIG, CHAOS_CONFIG, GAME_MODE_OBJECTIVES } from "./constants/gameConstants";
 
-// Version 1.2 - Chaos Mode with bombs and power-ups
 
-// Helper: Generate random position avoiding obstacles
 const getRandomPosition = (avoidPositions = []) => {
   let min = 1;
   let maxX = 32;
@@ -68,7 +66,7 @@ class App extends Component {
     this.hasEaten = false;
     this.gameInterval = null;
     this.powerUpInterval = null;
-    // Touch controls
+    this.normalSpeed = null;
     this.touchStartX = 0;
     this.touchStartY = 0;
   }
@@ -77,7 +75,6 @@ class App extends Component {
     this.gameInterval = setInterval(this.moveSnake, this.state.speed);
     document.onkeydown = this.onKeyDown;
     
-    // Touch events for mobile
     document.addEventListener('touchstart', this.handleTouchStart, { passive: false });
     document.addEventListener('touchmove', this.handleTouchMove, { passive: false });
     
@@ -88,7 +85,6 @@ class App extends Component {
     if (this.gameInterval) clearInterval(this.gameInterval);
     if (this.powerUpInterval) clearInterval(this.powerUpInterval);
     
-    // Remove touch listeners
     document.removeEventListener('touchstart', this.handleTouchStart);
     document.removeEventListener('touchmove', this.handleTouchMove);
   }
@@ -103,8 +99,6 @@ class App extends Component {
   };
 
   componentDidUpdate() {
-    // La détection de collision est maintenant dans moveSnake()
-    // On vérifie juste si le serpent mange et les interactions du Chaos Mode
     this.onSnakeEats();
     this.checkBombCollision();
     this.checkPowerUpCollection();
@@ -113,12 +107,10 @@ class App extends Component {
   onKeyDown = e => {
     e = e || window.event;
     
-    // Empêcher le comportement par défaut des flèches (scroll de la page)
     if ([37, 38, 39, 40].includes(e.keyCode)) {
       e.preventDefault();
     }
     
-    // Obtenir la dernière direction (soit de la queue, soit de l'état)
     const lastDirection = this.directionQueue.length > 0 
       ? this.directionQueue[this.directionQueue.length - 1]
       : this.state.direction;
@@ -126,37 +118,32 @@ class App extends Component {
     let newDirection = null;
     
     switch (e.keyCode) {
-      case 37: // Flèche gauche
-      case 81: // Q
-        // Empêcher d'aller à gauche si on va à droite
+      case 37:
+      case 81:
         if (lastDirection !== "RIGHT") {
           newDirection = "LEFT";
         }
         break;
-      case 38: // Flèche haut
-      case 90: // Z
-        // Empêcher d'aller en haut si on va en bas
+      case 38:
+      case 90:
         if (lastDirection !== "DOWN") {
           newDirection = "UP";
         }
         break;
-      case 39: // Flèche droite
-      case 68: // D
-        // Empêcher d'aller à droite si on va à gauche
+      case 39:
+      case 68:
         if (lastDirection !== "LEFT") {
           newDirection = "RIGHT";
         }
         break;
-      case 40: // Flèche bas
-      case 83: // S
-        // Empêcher d'aller en bas si on va en haut
+      case 40:
+      case 83:
         if (lastDirection !== "UP") {
           newDirection = "DOWN";
         }
         break;
     }
     
-    // Ajouter la nouvelle direction à la queue (max 3 directions en attente)
     if (newDirection && this.directionQueue.length < 3) {
       this.directionQueue.push(newDirection);
     }
@@ -174,36 +161,31 @@ class App extends Component {
     if (this.state.route !== "game") return;
     if (!this.touchStartX || !this.touchStartY) return;
     
-    e.preventDefault(); // Empêcher le scroll
+    e.preventDefault();
     
     const touch = e.touches[0];
     const deltaX = touch.clientX - this.touchStartX;
     const deltaY = touch.clientY - this.touchStartY;
     
-    // Seuil minimum pour détecter un swipe (30px)
     const minSwipeDistance = 30;
     
     if (Math.abs(deltaX) < minSwipeDistance && Math.abs(deltaY) < minSwipeDistance) {
       return;
     }
     
-    // Déterminer la direction du swipe
     const lastDirection = this.directionQueue.length > 0 
       ? this.directionQueue[this.directionQueue.length - 1]
       : this.state.direction;
     
     let newDirection = null;
     
-    // Swipe horizontal ou vertical ?
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      // Swipe horizontal
       if (deltaX > 0 && lastDirection !== "LEFT") {
         newDirection = "RIGHT";
       } else if (deltaX < 0 && lastDirection !== "RIGHT") {
         newDirection = "LEFT";
       }
     } else {
-      // Swipe vertical
       if (deltaY > 0 && lastDirection !== "UP") {
         newDirection = "DOWN";
       } else if (deltaY < 0 && lastDirection !== "DOWN") {
@@ -211,12 +193,10 @@ class App extends Component {
       }
     }
     
-    // Ajouter la direction à la queue
     if (newDirection && this.directionQueue.length < 3) {
       this.directionQueue.push(newDirection);
     }
     
-    // Réinitialiser les positions de départ pour le prochain swipe
     this.touchStartX = touch.clientX;
     this.touchStartY = touch.clientY;
   };
@@ -227,7 +207,6 @@ class App extends Component {
     let dots = [...this.state.snakeDots];
     let head = dots[dots.length - 1];
     
-    // Prendre la prochaine direction de la queue, ou garder la direction actuelle
     const direction = this.directionQueue.length > 0 
       ? this.directionQueue.shift()
       : this.state.direction;
@@ -247,16 +226,12 @@ class App extends Component {
         break;
     }
     
-    // Vérifier les collisions AVANT de mettre à jour le state
-    // 1. Collision avec les murs
     if (head[0] >= 34 || head[1] >= 30 || head[0] < 0 || head[1] < 0) {
       this.isGameOver = true;
       this.gameOver();
       return;
     }
     
-    // 2. Collision avec soi-même (sauf en mode ghost)
-    // Optimisation: on ne vérifie pas la tête (dernier élément) et on peut ignorer les 2 premiers segments
     if (this.state.activePowerUp !== POWER_UPS.GHOST_MODE) {
       for (let i = 0; i < dots.length - 1; i++) {
         if (head[0] === dots[i][0] && head[1] === dots[i][1]) {
@@ -269,7 +244,6 @@ class App extends Component {
     
     dots.push(head);
     
-    // Ne retirer la queue que si on n'a pas mangé
     if (!this.hasEaten) {
       dots.shift();
     }
@@ -313,9 +287,7 @@ class App extends Component {
         foodCount: newFoodCount
       };
       
-      // Chaos Mode: spawn bombs and power-ups
       if (this.state.gameMode === GAME_MODES.CHAOS) {
-        // Spawn bomb every BOMB_SPAWN_INTERVAL foods
         if (newFoodCount % CHAOS_CONFIG.BOMB_SPAWN_INTERVAL === 0 && this.state.bombs.length < CHAOS_CONFIG.MAX_BOMBS) {
           const bombPosition = getRandomPosition([
             ...this.state.snakeDots,
@@ -326,7 +298,6 @@ class App extends Component {
           newState.bombs = [...this.state.bombs, bombPosition];
         }
         
-        // Spawn power-up every POWER_UP_SPAWN_INTERVAL foods
         if (newFoodCount % CHAOS_CONFIG.POWER_UP_SPAWN_INTERVAL === 0 && this.state.powerUps.length === 0) {
           const powerUpPosition = getRandomPosition([
             ...this.state.snakeDots,
@@ -342,13 +313,12 @@ class App extends Component {
       
       this.setState(newState);
       this.hasEaten = true;
-      this.increaseSpeed();
     }
   }
   
   checkBombCollision() {
     if (this.state.gameMode !== GAME_MODES.CHAOS) return;
-    if (this.state.activePowerUp === POWER_UPS.GHOST_MODE) return; // Ghost mode protects from bombs
+    if (this.state.activePowerUp === POWER_UPS.GHOST_MODE) return;
     
     const head = this.state.snakeDots[this.state.snakeDots.length - 1];
     const hitBomb = this.state.bombs.some(bomb => bomb[0] === head[0] && bomb[1] === head[1]);
@@ -371,7 +341,6 @@ class App extends Component {
       const powerUp = this.state.powerUps[powerUpIndex];
       this.activatePowerUp(powerUp.type);
       
-      // Remove collected power-up
       const newPowerUps = [...this.state.powerUps];
       newPowerUps.splice(powerUpIndex, 1);
       this.setState({ powerUps: newPowerUps });
@@ -379,32 +348,29 @@ class App extends Component {
   }
   
   activatePowerUp(type) {
-    // Clear previous power-up timer
     if (this.powerUpInterval) {
       clearInterval(this.powerUpInterval);
     }
     
     const config = POWER_UP_CONFIG[type];
     
-    // Instant effects
     if (type === POWER_UPS.BOMB_REMOVER) {
       this.setState({ bombs: [], activePowerUp: null, powerUpTimeRemaining: 0 });
       return;
     }
     
-    // Timed effects
     this.setState({
       activePowerUp: type,
       powerUpTimeRemaining: config.duration
     });
     
-    // Apply speed boost (10% plus vite)
     if (type === POWER_UPS.SPEED_BOOST) {
+      this.normalSpeed = this.state.speed;
+      const boostedSpeed = Math.max(this.state.speed * 0.9, 40);
       clearInterval(this.gameInterval);
-      this.gameInterval = setInterval(this.moveSnake, Math.max(this.state.speed * 0.9, 40));
+      this.gameInterval = setInterval(this.moveSnake, boostedSpeed);
     }
     
-    // Start countdown timer
     this.powerUpInterval = setInterval(() => {
       const newTime = this.state.powerUpTimeRemaining - 100;
       
@@ -422,10 +388,10 @@ class App extends Component {
       this.powerUpInterval = null;
     }
     
-    // Restore normal speed if speed boost was active
-    if (this.state.activePowerUp === POWER_UPS.SPEED_BOOST) {
+    if (this.state.activePowerUp === POWER_UPS.SPEED_BOOST && this.normalSpeed !== null) {
       clearInterval(this.gameInterval);
-      this.gameInterval = setInterval(this.moveSnake, this.state.speed);
+      this.gameInterval = setInterval(this.moveSnake, this.normalSpeed);
+      this.normalSpeed = null; // Reset saved speed
     }
     
     this.setState({
@@ -434,13 +400,6 @@ class App extends Component {
     });
   }
 
-  increaseSpeed() {
-    if (this.state.speed > 10) {
-      this.setState({
-        speed: this.state.speed - 20
-      });
-    }
-  }
 
   onRouteChange = () => {
     this.isGameOver = false;
@@ -459,7 +418,6 @@ class App extends Component {
   };
   
   onGameModeChange = async (gameMode) => {
-    // Mettre à jour le mode et recharger le leaderboard correspondant
     this.setState({ gameMode });
     try {
       const scores = await scoreService.getTopScores(gameMode);
@@ -472,25 +430,22 @@ class App extends Component {
   gameOver = async () => {
     const finalScore = this.state.snakeDots.length - 2;
     
-    // Nettoyer les power-ups actifs
     if (this.powerUpInterval) {
       clearInterval(this.powerUpInterval);
       this.powerUpInterval = null;
     }
     
-    // Restaurer la vitesse normale si speed boost était actif
     if (this.state.activePowerUp === POWER_UPS.SPEED_BOOST) {
+      this.normalSpeed = null; // Reset saved speed
       clearInterval(this.gameInterval);
       this.gameInterval = setInterval(this.moveSnake, initialState.speed);
     }
     
-    // Vérifier si le défi de M. Paf est réussi
     let message = `GAME OVER, ${this.state.username}! Your score is ${finalScore}`;
     if (this.state.gameMode === GAME_MODES.PAF && finalScore > 35) {
       message = `🎉 FÉLICITATIONS ${this.state.username}! 🎉\n\nVous avez battu M. Paf avec un score de ${finalScore}!\n\n🔑 Code secret: pafsupreme 🔑\n\nNotez bien ce code pour valider votre quête!`;
     }
     
-    // Sauvegarder le score une seule fois
     if (this.state.username && finalScore > 0) {
       try {
         await scoreService.saveScore(this.state.username, finalScore, this.state.gameMode);
@@ -508,9 +463,14 @@ class App extends Component {
       ...initialState,
       username: this.state.username,
       gameMode: this.state.gameMode,
-      topScores: this.state.topScores
+      topScores: this.state.topScores,
+      settingsOpen: this.state.settingsOpen,
+      glowEnabled: this.state.glowEnabled
     });
     this.directionQueue = [];
+    
+    clearInterval(this.gameInterval);
+    this.gameInterval = setInterval(this.moveSnake, initialState.speed);
   };
 
 
