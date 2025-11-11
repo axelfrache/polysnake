@@ -527,7 +527,7 @@ class App extends Component {
               timeRemaining={powerUpTimeRemaining} 
             />
             <div className="game-title-ingame">
-              POLY SNAKE
+              POLYSNAKE
             </div>
             <div className="game-score">
               SCORE: {score}
